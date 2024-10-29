@@ -1,15 +1,10 @@
 import os
 import tweepy
-import json
 
-# Authenticate to Twitter
-client = tweepy.Client(
-    bearer_token=os.getenv("TWITTER_BEARER_TOKEN"),
-    consumer_key=os.getenv("TWITTER_API_KEY"),
-    consumer_secret=os.getenv("TWITTER_API_SECRET"),
-    access_token=os.getenv("TWITTER_ACCESS_TOKEN"),
-    access_token_secret=os.getenv("TWITTER_ACCESS_TOKEN_SECRET"),
-)
+# OAuth 1.0a Authentication
+auth = tweepy.OAuthHandler(os.getenv("TWITTER_API_KEY"), os.getenv("TWITTER_API_SECRET"))
+auth.set_access_token(os.getenv("TWITTER_ACCESS_TOKEN"), os.getenv("TWITTER_ACCESS_TOKEN_SECRET"))
+api = tweepy.API(auth)
 
 # Load tweets from file
 with open('tweets.txt', 'r') as file:
@@ -19,14 +14,12 @@ with open('tweets.txt', 'r') as file:
 if tweets:
     tweet = tweets[0].strip()
     
-    # Use the v2 endpoint to post the tweet
-    response = client.create_tweet(text=tweet)
-    
-    if response.data:
-        print(f"Successfully posted tweet: {response.data['text']}")
+    try:
+        response = api.update_status(tweet)
+        print(f"Successfully posted tweet: {response.text}")
         
         # Update the file to remove the posted tweet
         with open('tweets.txt', 'w') as file:
             file.writelines(tweets[1:])
-    else:
-        print("Failed to post tweet:", response)
+    except tweepy.errors.TweepError as e:
+        print(f"Failed to post tweet: {e}")
