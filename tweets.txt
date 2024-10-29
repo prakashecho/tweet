@@ -1,1 +1,2 @@
 1. Roadmap for github actions
+2. Github Actions automates the complete CI/CD process
