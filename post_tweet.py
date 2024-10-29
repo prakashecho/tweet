@@ -1,7 +1,7 @@
 import os
 import tweepy
 
-# OAuth 1.0a Authentication4
+# OAuth 1.0a Authentication
 auth = tweepy.OAuthHandler(os.getenv("TWITTER_API_KEY"), os.getenv("TWITTER_API_SECRET"))
 auth.set_access_token(os.getenv("TWITTER_ACCESS_TOKEN"), os.getenv("TWITTER_ACCESS_TOKEN_SECRET"))
 api = tweepy.API(auth)
