@@ -21,5 +21,5 @@ if tweets:
         # Update the file to remove the posted tweet
         with open('tweets.txt', 'w') as file:
             file.writelines(tweets[1:])
-    except tweepy.errors.TweepError as e:
+    except tweepy.TweepyException as e:
         print(f"Failed to post tweet: {e}")
