@@ -1,12 +1,11 @@
-# .github/workflows/tweet-scheduler.yml
 name: Tweet Scheduler
 
 on:
   push:
     branches:
       - main
-  # schedule:
-  #   - cron: '0 */4 * * *'  # Runs every 4 hours - adjust as needed
+  schedule:
+    - cron: '0 */4 * * *'  # Runs every 4 hours
 
 jobs:
   post_tweet:
