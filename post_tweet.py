@@ -23,35 +23,42 @@ def post_tweet():
     except FileNotFoundError:
         posted_tweets = []
 
+    posted_new_tweet = False
+    tweets_to_remove = []
+
     for tweet in tweets:
         tweet = tweet.strip()
-        if tweet not in posted_tweets:
+        if tweet and tweet not in posted_tweets:
             try:
                 response = client.create_tweet(text=tweet)
-                print(f"Successfully posted tweet with ID: {response.data['id']}")
+                print(f"Successfully posted tweet: {tweet}")
+                print(f"Tweet ID: {response.data['id']}")
                 
                 posted_tweets.append(tweet)
-                with open('posted_tweets.json', 'w') as file:
-                    json.dump(posted_tweets, file)
-                
-                tweets.remove(tweet + '\n')
-                with open('tweets.txt', 'w', encoding='utf-8') as file:
-                    file.writelines(tweets)
-                
+                tweets_to_remove.append(tweet)
+                posted_new_tweet = True
                 break  # Exit after successfully posting a tweet
             except tweepy.TweepyException as e:
                 if "duplicate content" in str(e).lower():
                     print(f"Tweet is a duplicate, skipping: {tweet}")
-                    posted_tweets.append(tweet)  # Add to posted tweets to avoid trying again
-                    with open('posted_tweets.json', 'w') as file:
-                        json.dump(posted_tweets, file)
-                    tweets.remove(tweet + '\n')
-                    with open('tweets.txt', 'w', encoding='utf-8') as file:
-                        file.writelines(tweets)
+                    posted_tweets.append(tweet)
+                    tweets_to_remove.append(tweet)
                 else:
                     print(f"Failed to post tweet: {e}")
                     break  # Exit if there's an error other than duplicate content
-    else:
+        elif tweet in posted_tweets:
+            tweets_to_remove.append(tweet)
+
+    # Update posted_tweets.json
+    with open('posted_tweets.json', 'w') as file:
+        json.dump(posted_tweets, file)
+
+    # Remove posted and duplicate tweets from tweets.txt
+    if tweets_to_remove:
+        with open('tweets.txt', 'w', encoding='utf-8') as file:
+            file.writelines(tweets)
+
+    if not posted_new_tweet:
         print("No new tweets to post")
 
 if __name__ == "__main__":
