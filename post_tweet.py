@@ -49,7 +49,7 @@ def post_tweet():
         elif tweet in posted_tweets:
             tweets_to_remove.append(tweet)
 
-    # Update posted_tweets.json
+    # Update posted_tweets.jso
     with open('posted_tweets.json', 'w') as file:
         json.dump(posted_tweets, file)
 
