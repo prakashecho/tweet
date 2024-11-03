@@ -1,7 +1,6 @@
 import os
 import tweepy
 import json
-import time
 
 def post_tweet():
     client = tweepy.Client(
@@ -28,9 +27,7 @@ def post_tweet():
         tweet = tweet.strip()
         if tweet not in posted_tweets:
             try:
-                # Add a timestamp to make the tweet unique
-                unique_tweet = f"{tweet} (Posted at: {time.strftime('%Y-%m-%d %H:%M:%S')})"
-                response = client.create_tweet(text=unique_tweet)
+                response = client.create_tweet(text=tweet)
                 print(f"Successfully posted tweet with ID: {response.data['id']}")
                 
                 posted_tweets.append(tweet)
@@ -44,7 +41,13 @@ def post_tweet():
                 break  # Exit after successfully posting a tweet
             except tweepy.TweepyException as e:
                 if "duplicate content" in str(e).lower():
-                    print(f"Tweet is a duplicate, trying next tweet")
+                    print(f"Tweet is a duplicate, skipping: {tweet}")
+                    posted_tweets.append(tweet)  # Add to posted tweets to avoid trying again
+                    with open('posted_tweets.json', 'w') as file:
+                        json.dump(posted_tweets, file)
+                    tweets.remove(tweet + '\n')
+                    with open('tweets.txt', 'w', encoding='utf-8') as file:
+                        file.writelines(tweets)
                 else:
                     print(f"Failed to post tweet: {e}")
                     break  # Exit if there's an error other than duplicate content
