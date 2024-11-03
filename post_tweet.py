@@ -1,9 +1,9 @@
 import os
 import tweepy
 import json
+import time
 
 def post_tweet():
-    # OAuth 2.0 Authentication (current Twitter API v2 standard)
     client = tweepy.Client(
         consumer_key=os.getenv("TWITTER_API_KEY"),
         consumer_secret=os.getenv("TWITTER_API_SECRET"),
@@ -11,7 +11,6 @@ def post_tweet():
         access_token_secret=os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
     )
     
-    # Load tweets from file
     try:
         with open('tweets.txt', 'r', encoding='utf-8') as file:
             tweets = file.readlines()
@@ -19,39 +18,36 @@ def post_tweet():
         print("tweets.txt file not found")
         return
     
-    # Load posted tweets
     try:
         with open('posted_tweets.json', 'r') as file:
             posted_tweets = json.load(file)
     except FileNotFoundError:
         posted_tweets = []
 
-    # Find the first tweet that hasn't been posted yet
-    tweet_to_post = None
     for tweet in tweets:
-        if tweet.strip() not in posted_tweets:
-            tweet_to_post = tweet.strip()
-            break
-
-    if tweet_to_post:
-        try:
-            # Create Tweet using v2 endpoint
-            response = client.create_tweet(text=tweet_to_post)
-            print(f"Successfully posted tweet with ID: {response.data['id']}")
-            
-            # Add the posted tweet to the list of posted tweets
-            posted_tweets.append(tweet_to_post)
-            
-            # Save the updated list of posted tweets
-            with open('posted_tweets.json', 'w') as file:
-                json.dump(posted_tweets, file)
-            
-            # Remove the posted tweet from tweets.txt
-            tweets.remove(tweet_to_post + '\n')
-            with open('tweets.txt', 'w', encoding='utf-8') as file:
-                file.writelines(tweets)
-        except tweepy.TweepyException as e:
-            print(f"Failed to post tweet: {e}")
+        tweet = tweet.strip()
+        if tweet not in posted_tweets:
+            try:
+                # Add a timestamp to make the tweet unique
+                unique_tweet = f"{tweet} (Posted at: {time.strftime('%Y-%m-%d %H:%M:%S')})"
+                response = client.create_tweet(text=unique_tweet)
+                print(f"Successfully posted tweet with ID: {response.data['id']}")
+                
+                posted_tweets.append(tweet)
+                with open('posted_tweets.json', 'w') as file:
+                    json.dump(posted_tweets, file)
+                
+                tweets.remove(tweet + '\n')
+                with open('tweets.txt', 'w', encoding='utf-8') as file:
+                    file.writelines(tweets)
+                
+                break  # Exit after successfully posting a tweet
+            except tweepy.TweepyException as e:
+                if "duplicate content" in str(e).lower():
+                    print(f"Tweet is a duplicate, trying next tweet")
+                else:
+                    print(f"Failed to post tweet: {e}")
+                    break  # Exit if there's an error other than duplicate content
     else:
         print("No new tweets to post")
 
