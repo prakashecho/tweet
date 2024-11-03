@@ -3,7 +3,7 @@ import os
 import tweepy
 
 def post_tweet():
-    # OAuth 2.0 Authentication (current Twitter API v2 standard)
+    # OAuth 2.0 Authentication (current Twitter API v2 standard)-
     client = tweepy.Client(
         consumer_key=os.getenv("TWITTER_API_KEY"),
         consumer_secret=os.getenv("TWITTER_API_SECRET"),
@@ -19,7 +19,7 @@ def post_tweet():
         print("tweets.txt file not found")
         return
     
-    # Post first tweet and remove it from the file
+    # Post first tweet and remove it from the fileq
     if tweets:
         tweet = tweets[0].strip()
         
