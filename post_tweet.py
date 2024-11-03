@@ -19,7 +19,7 @@ def post_tweet():
         print("tweets.txt file not found")
         return
     
-    # Post first tweet and remove it from the file
+    # Post first tweet and remove it from the fileq
     if tweets:
         tweet = tweets[0].strip()
         
