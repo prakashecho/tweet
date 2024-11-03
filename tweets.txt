@@ -1,7 +1,6 @@
-Github actions
-Triggers
-permissions
-matrix
-jobs
-steps
-reusable work flows
+1
+2
+3
+4
+5
+6
